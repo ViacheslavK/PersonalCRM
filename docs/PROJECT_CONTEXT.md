@@ -76,7 +76,7 @@ PersonalCRM (`pcrm`) is a lightweight, local-first **Personal Knowledge + Projec
 
 ### 3.3 Deferred to Pluggable Extensions
 
-- **People** (contacts relevant to projects/hobbies, context, last interaction, notes) — deferred to an optional plugin/extension module.
+- **People & Actors** (external contacts/companies, customers as requirement sources, external workers with contract/payment agreements, internal family/friends, and AI agents assigned tasks via CLI) — deferred to optional module `ext:people` (see [MODULE_PEOPLE.md](MODULE_PEOPLE.md)).
 - **Reports / Analytics** — deferred to an optional plugin/extension module.
 - **Future integrations** (e.g., Obsidian/Markdown sync, calendar feeds, webhooks) — designed to plug into the extension system.
 

@@ -1,6 +1,6 @@
 # PersonalCRM — Automated Test Plan & Inventory
 
-> **Status:** Active (Updated through Phase 3)  
+> **Status:** Active (Updated through Phase 4)  
 > **Last Updated:** 2026-11-24
 
 ---
@@ -23,7 +23,7 @@ go build -o pcrm.exe ./cmd/pcrm
 
 ---
 
-## 2. Current Automated Test Inventory (19 Test Functions)
+## 2. Current Automated Test Inventory (23 Test Functions)
 
 ### 2.1 Configuration & Platform Paths (`internal/config`)
 File: [internal/config/config_test.go](../internal/config/config_test.go)
@@ -80,17 +80,19 @@ File: [internal/cli/cli_test.go](../internal/cli/cli_test.go)
 | :--- | :--- | :--- |
 | `TestCLIQuickCaptureListExportBackupAndPlugins` | End-to-End | Bare `pcrm add "..."` inbox shorthand with trailing flags, `add project|task|hobby|routine|note|link|log`, smart task-to-project resolution by title substring, `list`, `export --format json|markdown`, `backup`, `plugins enable`, and dynamic dispatch to enabled plugin CLI commands. |
 
+### 2.7 Bubble Tea TUI Application (`internal/tui`)
+File: [internal/tui/tui_test.go](../internal/tui/tui_test.go)
+
+| Test Function | Type | What It Verifies |
+| :--- | :--- | :--- |
+| `TestTUIDashboardRefinementBannerAndRoutineToggle` | Integration (TUI + SQLite) | Overdue Weekly Refinement banner renders on Dashboard, `Space` toggles due routine completion in SQLite (`[x]`), and `S` snoozes Refinement and clears the banner. |
+| `TestTUIProjectsTasksAndPluginBadgesAndSections` | Integration (TUI + Ext + SQLite) | Enabled plugin injects top-level tab (`7 People`), `@claude` task badge (`EntityBadges`), and `Customer & People` project detail section (`EntityDetailSections`); pane focus (`←`/`→`), task toggle (`Space`), and project status cycling (`s`) persist to SQLite. |
+| `TestTUIIdeaPromoteModalFlow` | Integration (TUI + SQLite) | Interactive multi-field Promote modal (`P` in Ideas) atomically promotes Idea to active Project with goal and initial tasks. |
+| `TestTUIGuidedWeeklyRefinementWizard` | Integration (TUI + Bus + SQLite) | Full multi-step Weekly Refinement (`R`): Projects & tasks → Ideas triage → Routines check → Summary completion (`Enter`) persists `RefinementRun`, publishes `EventRefinementCompleted`, and clears Dashboard banner. |
+
 ---
 
 ## 3. Planned Automated Tests (Upcoming Phases)
-
-### Phase 4 — Bubble Tea TUI (`internal/tui`)
-- Root tab switching & dynamic injection of enabled plugin tabs.
-- Dashboard rendering with active Weekly Refinement banner, due routine one-keystroke toggle, and snooze action.
-- Projects & Tasks interactive state transitions (status cycle, add/complete task, add dated progress log).
-- Ideas Tracker guided Promote-to-Project modal flow.
-- Notes/Resources linking and `$EDITOR` command handoff (`tea.ExecProcess`).
-- Guided Weekly Refinement multi-step wizard (Projects → Ideas → Routines → completion persistence).
 
 ### Phase 5 — Background Tray Daemon, Scheduler & Windows Integration (`internal/daemon`, `internal/platform`)
 - Scheduler tick tests using injected fake clock + mock `Notifier` (Weekly Refinement catch-up, snooze re-notify, opt-in Routine & Task deadline reminders).

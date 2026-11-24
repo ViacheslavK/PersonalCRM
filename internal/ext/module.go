@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"personalcrm/internal/config"
+	"personalcrm/internal/domain"
 	"personalcrm/internal/storage"
 )
 
@@ -49,6 +50,13 @@ type ScheduledJob struct {
 	Run      func(ctx context.Context, now time.Time) error
 }
 
+// DetailSection is a titled block of lines injected by an enabled plugin into a core
+// entity's TUI detail panel (e.g. Customer/Contacts on a Project when ext:people is enabled).
+type DetailSection struct {
+	Title string
+	Lines []string
+}
+
 // Module is the contract implemented by every optional PersonalCRM plugin/extension.
 type Module interface {
 	ID() string
@@ -63,15 +71,26 @@ type Module interface {
 	TUIViewSpecs() []TUIViewSpec
 	RefinementStepSpecs() []RefinementStepSpec
 	ScheduledJobs() []ScheduledJob
+
+	// EntityBadges returns optional compact badges (e.g. "@claude") rendered beside an entity in TUI lists.
+	EntityBadges(ctx context.Context, entityType domain.EntityType, entityID string) []string
+	// EntityDetailSections returns optional extra sections rendered in an entity's TUI detail panel.
+	EntityDetailSections(ctx context.Context, entityType domain.EntityType, entityID string) []DetailSection
 }
 
 // BaseModule provides no-op defaults so modules only implement hooks they need.
 type BaseModule struct{}
 
-func (BaseModule) DefaultEnabled() bool                     { return false }
-func (BaseModule) Migrations() []storage.Migration          { return nil }
+func (BaseModule) DefaultEnabled() bool                      { return false }
+func (BaseModule) Migrations() []storage.Migration           { return nil }
 func (BaseModule) Init(context.Context, ModuleContext) error { return nil }
-func (BaseModule) CLICommands() []CLICommand                { return nil }
-func (BaseModule) TUIViewSpecs() []TUIViewSpec              { return nil }
+func (BaseModule) CLICommands() []CLICommand                 { return nil }
+func (BaseModule) TUIViewSpecs() []TUIViewSpec               { return nil }
 func (BaseModule) RefinementStepSpecs() []RefinementStepSpec { return nil }
-func (BaseModule) ScheduledJobs() []ScheduledJob            { return nil }
+func (BaseModule) ScheduledJobs() []ScheduledJob             { return nil }
+func (BaseModule) EntityBadges(context.Context, domain.EntityType, string) []string {
+	return nil
+}
+func (BaseModule) EntityDetailSections(context.Context, domain.EntityType, string) []DetailSection {
+	return nil
+}

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"personalcrm/internal/config"
+	"personalcrm/internal/domain"
 	"personalcrm/internal/storage"
 )
 
@@ -161,6 +162,30 @@ func (r *Registry) ScheduledJobs() []ScheduledJob {
 	var out []ScheduledJob
 	for _, m := range r.EnabledModules() {
 		out = append(out, m.ScheduledJobs()...)
+	}
+	return out
+}
+
+// EntityBadges collects optional badges (e.g. "@claude") from enabled modules for an entity.
+func (r *Registry) EntityBadges(ctx context.Context, entityType domain.EntityType, entityID string) []string {
+	if r == nil {
+		return nil
+	}
+	var out []string
+	for _, m := range r.EnabledModules() {
+		out = append(out, m.EntityBadges(ctx, entityType, entityID)...)
+	}
+	return out
+}
+
+// EntityDetailSections collects optional detail sections from enabled modules for an entity.
+func (r *Registry) EntityDetailSections(ctx context.Context, entityType domain.EntityType, entityID string) []DetailSection {
+	if r == nil {
+		return nil
+	}
+	var out []DetailSection
+	for _, m := range r.EnabledModules() {
+		out = append(out, m.EntityDetailSections(ctx, entityType, entityID)...)
 	}
 	return out
 }

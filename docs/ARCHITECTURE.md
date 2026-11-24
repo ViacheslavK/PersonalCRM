@@ -344,7 +344,9 @@ PersonalCRM/
 ├── docs/
 │   ├── PROJECT_CONTEXT.md
 │   ├── ARCHITECTURE.md
+│   ├── MODULE_PEOPLE.md
 │   ├── RUST_VS_GO.md
+│   ├── TEST_PLAN.md
 │   └── STATUS.md
 ├── cmd/
 │   └── pcrm/

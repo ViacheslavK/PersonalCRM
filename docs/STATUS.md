@@ -1,14 +1,14 @@
 # PersonalCRM — Project Status & Decisions
 
-> **Current Phase:** `04 - TUI Application (Phase 3 Complete)`  
+> **Current Phase:** `05 - Windows Tray Daemon, Notifications & Autostart (Phase 4 Complete)`  
 > **Last Updated:** 2026-11-24
 
 ---
 
 ## 1. Current State
 
-- **Completed:** Phase 1 (Discovery & Architecture), Phase 2 (Core Engine & Storage), and **Phase 3 (Extension Registry, Event Bus & CLI Quick Capture)** are complete and verified (`go vet ./...`, `go test ./...`, and zero-CGO `pcrm.exe` build + CLI smoke test all passing).
-- **Next Step:** Begin **Phase 4 — TUI Application (Bubble Tea)** (`internal/tui`: Dashboard with Weekly Refinement banner, Projects/Tasks, Ideas + Promote flow, Hobbies, Routines, Notes/Resources + `$EDITOR`, Progress Logs, and guided Weekly Refinement).
+- **Completed:** Phases 1–4 are complete and verified (`go vet ./...`, all 23 automated test functions in `go test -v ./...`, and zero-CGO `pcrm.exe` build passing). The full Bubble Tea TUI (`pcrm` / `pcrm tui`) is runnable with Dashboard, Projects/Tasks, Ideas + Promote flow, Hobbies, Routines, Notes & Links + external `$EDITOR`, guided Weekly Refinement wizard, and plugin `@handle` badge / detail / tab hooks.
+- **Next Step:** Begin **Phase 5 — Windows System Tray Daemon, Notifications & Autostart** (`internal/daemon`, Windows `internal/platform` backend, background scheduler, single-instance IPC, and portable `pcrm.exe` release build).
 
 ---
 
@@ -44,6 +44,6 @@
 - [x] **Phase 1 — Discovery & Architecture:** Requirements synthesized, ADRs locked, SQLite schema & pluggable architecture designed.
 - [x] **Phase 2 — Core Engine & Storage:** Go module bootstrap, config/portable-mode detection, domain models, recurrence & refinement math, SQLite migrations & repositories, unit tests.
 - [x] **Phase 3 — Extension Registry & CLI Quick Capture:** `internal/ext` module registry + event bus, `internal/editor` external `$EDITOR` helper, Markdown + JSON export, `pcrm add`, `pcrm list`, `pcrm export`, `pcrm backup`, `pcrm plugins`.
-- [ ] **Phase 4 — TUI Application:** Bubble Tea views for Dashboard, Projects/Tasks, Ideas (+ Promote flow), Hobbies, Routines, Notes/Resources (+ `$EDITOR`), Progress Logs, and guided Weekly Refinement.
+- [x] **Phase 4 — TUI Application:** Bubble Tea views for Dashboard (with Refinement banner), Projects/Tasks, Ideas (+ Promote modal), Hobbies, Routines, Notes/Resources (+ `$EDITOR` via `tea.ExecProcess` & polymorphic link picker), Progress Logs, guided Weekly Refinement wizard, and plugin tab / `@handle` badge / detail section hooks.
 - [ ] **Phase 5 — Windows Tray Daemon, Notifications & Autostart:** Windows `internal/platform` backend, background scheduler, IPC, and portable `pcrm.exe` build.
-- [ ] **Phase 6 — Cross-Platform & First Extensions:** Debian Linux & macOS backends, plus initial optional plugins (e.g., `people`, `reports`).
+- [ ] **Phase 6 — Cross-Platform & First Extensions:** Debian Linux & macOS backends, plus initial optional plugins (`people` per [MODULE_PEOPLE.md](MODULE_PEOPLE.md), `reports`).
