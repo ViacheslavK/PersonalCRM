@@ -1,6 +1,7 @@
 # PersonalCRM — Project Status & Decisions
 
 > **Current Phase:** `05 - Windows Tray Daemon, Notifications & Autostart (Phase 4 Complete)`  
+> **Current Version:** `0.4.0` (tracked in `VERSION` & `internal/cli/app.go`)  
 > **Last Updated:** 2026-11-24
 
 ---
@@ -36,6 +37,7 @@
 | **ADR-006** | Routines Recurrence & Reset | Support `daily`, `weekly`, `monthly`, `every_n_days`, and `weekdays` schedules using deterministic cycle keys so routines act as a simple resetting checklist without history bloat. | 2026-11-24 |
 | **ADR-007** | Weekly Refinement & Notifications | Weekly schedule with startup catch-up covering active/waiting Projects (+ open tasks), Ideas, and Routines; opens normal Dashboard with a prominent Refinement banner. Opt-in reminders for due Routines and task deadlines. | 2026-11-24 |
 | **ADR-008** | Editing, Quick Capture & Windows Packaging | External `$EDITOR` for longer notes/descriptions; CLI quick-capture (`pcrm add ...`) + tray menu actions; portable single `pcrm.exe` on Windows with zero-flash daemon spawning. | 2026-11-24 |
+| **ADR-009** | GitFlow & PR-Merge Release Pipeline | Feature-branch GitFlow (no direct commits to `main` after `0.4.0` baseline). `.github/workflows/release.yml` runs only on merged PRs to `main` (or manual `workflow_dispatch`), cross-compiling Windows, Linux, and macOS binaries and publishing a GitHub Release when `VERSION` defines a new `vX.Y.Z` tag. | 2026-11-24 |
 
 ---
 

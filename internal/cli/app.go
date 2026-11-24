@@ -17,7 +17,9 @@ import (
 	"personalcrm/internal/storage"
 )
 
-const Version = "0.1.0-dev"
+// Version is the application semantic version (synchronized with root VERSION and
+// overridable via -ldflags "-X personalcrm/internal/cli.Version=...").
+var Version = "0.4.0"
 
 // Options customizes CLI execution (primarily for testing and wiring TUI/Daemon hooks).
 type Options struct {

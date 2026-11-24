@@ -1,6 +1,7 @@
 # Go build artifacts
 /pcrm
 /pcrm.exe
+/dist/
 *.exe
 *.exe~
 *.dll

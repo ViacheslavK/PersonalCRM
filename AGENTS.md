@@ -32,6 +32,7 @@ Always read the relevant docs before making architectural or implementation deci
 6. **Separation of concerns:** Keep `internal/domain` & `internal/storage` strictly independent from `internal/tui`, `internal/daemon`, and `internal/cli`.
 7. **Keep docs synchronized:** Update `docs/STATUS.md` when milestones complete or decisions evolve, and update `docs/TEST_PLAN.md` whenever automated tests are added or changed.
 8. **Verify changes:** Run `go test ./...` and `go vet ./...` (and `go build ./...`) before marking implementation work complete.
+9. **GitFlow & Release Discipline:** Never commit directly to `main` for new phases/features/fixes. Create a dedicated branch (e.g., `feat/tray_daemon`, `fix/...`), complete coding, automated tests, and local UAT on the branch, and bump both root `VERSION` and `internal/cli.Version` when preparing a release. Merging the Pull Request into `main` on GitHub triggers `.github/workflows/release.yml` to build and publish Windows, Linux (Ubuntu/Debian), and macOS binaries under GitHub Releases.
 
 ## Repository Conventions
 
