@@ -19,6 +19,7 @@ Always read the relevant docs before making architectural or implementation deci
 - [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) — Confirmed product vision, domain model, workflows, and UX requirements.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — Technical architecture, Go stack, SQLite schema, pluggable module system, tray/daemon lifecycle, and package layout.
 - [docs/STATUS.md](docs/STATUS.md) — Current project phase, Architecture Decision Records (ADRs), and milestone tracker.
+- [docs/TEST_PLAN.md](docs/TEST_PLAN.md) — Automated test plan, test inventory, and verification commands.
 - [docs/RUST_VS_GO.md](docs/RUST_VS_GO.md) — Tech stack trade-off analysis (Rust vs. Go) for reference.
 
 ## Engineering & Working Guidelines
@@ -29,7 +30,7 @@ Always read the relevant docs before making architectural or implementation deci
 4. **Zero-CGO core:** Use pure-Go SQLite (`modernc.org/sqlite`) and avoid CGO in core packages so Windows portable `.exe` and cross-builds remain simple and reliable.
 5. **Local-first & data safety:** Use SQLite in WAL mode with foreign keys enabled, forward-only versioned migrations, and never introduce destructive schema changes without backup/migration safety.
 6. **Separation of concerns:** Keep `internal/domain` & `internal/storage` strictly independent from `internal/tui`, `internal/daemon`, and `internal/cli`.
-7. **Keep docs synchronized:** Update `docs/STATUS.md` when milestones complete or decisions evolve.
+7. **Keep docs synchronized:** Update `docs/STATUS.md` when milestones complete or decisions evolve, and update `docs/TEST_PLAN.md` whenever automated tests are added or changed.
 8. **Verify changes:** Run `go test ./...` and `go vet ./...` (and `go build ./...`) before marking implementation work complete.
 
 ## Repository Conventions

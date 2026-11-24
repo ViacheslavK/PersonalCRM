@@ -1,14 +1,14 @@
 # PersonalCRM — Project Status & Decisions
 
-> **Current Phase:** `03 - Extension Registry & CLI Quick Capture (Phase 2 Complete)`  
+> **Current Phase:** `04 - TUI Application (Phase 3 Complete)`  
 > **Last Updated:** 2026-11-24
 
 ---
 
 ## 1. Current State
 
-- **Completed:** Phase 1 (Discovery & Architecture) and **Phase 2 (Core Engine & Storage)** are complete and verified (`go vet ./...`, `go test ./...`, and zero-CGO `pcrm.exe` build all passing).
-- **Next Step:** Begin **Phase 3 — Extension Registry, Event Bus & CLI Quick Capture** (`internal/ext`, `pcrm add`, `pcrm export`, `pcrm backup`).
+- **Completed:** Phase 1 (Discovery & Architecture), Phase 2 (Core Engine & Storage), and **Phase 3 (Extension Registry, Event Bus & CLI Quick Capture)** are complete and verified (`go vet ./...`, `go test ./...`, and zero-CGO `pcrm.exe` build + CLI smoke test all passing).
+- **Next Step:** Begin **Phase 4 — TUI Application (Bubble Tea)** (`internal/tui`: Dashboard with Weekly Refinement banner, Projects/Tasks, Ideas + Promote flow, Hobbies, Routines, Notes/Resources + `$EDITOR`, Progress Logs, and guided Weekly Refinement).
 
 ---
 
@@ -43,7 +43,7 @@
 
 - [x] **Phase 1 — Discovery & Architecture:** Requirements synthesized, ADRs locked, SQLite schema & pluggable architecture designed.
 - [x] **Phase 2 — Core Engine & Storage:** Go module bootstrap, config/portable-mode detection, domain models, recurrence & refinement math, SQLite migrations & repositories, unit tests.
-- [ ] **Phase 3 — Extension Registry & CLI Quick Capture:** `internal/ext` module registry + event bus, `pcrm add`, `pcrm export`, `pcrm backup`.
+- [x] **Phase 3 — Extension Registry & CLI Quick Capture:** `internal/ext` module registry + event bus, `internal/editor` external `$EDITOR` helper, Markdown + JSON export, `pcrm add`, `pcrm list`, `pcrm export`, `pcrm backup`, `pcrm plugins`.
 - [ ] **Phase 4 — TUI Application:** Bubble Tea views for Dashboard, Projects/Tasks, Ideas (+ Promote flow), Hobbies, Routines, Notes/Resources (+ `$EDITOR`), Progress Logs, and guided Weekly Refinement.
 - [ ] **Phase 5 — Windows Tray Daemon, Notifications & Autostart:** Windows `internal/platform` backend, background scheduler, IPC, and portable `pcrm.exe` build.
 - [ ] **Phase 6 — Cross-Platform & First Extensions:** Debian Linux & macOS backends, plus initial optional plugins (e.g., `people`, `reports`).
