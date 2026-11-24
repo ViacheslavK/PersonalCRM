@@ -432,11 +432,12 @@ func (m *Model) renderProjects() string {
 		} else {
 			for i, t := range tasks {
 				check := "[ ]"
-				if t.Status == domain.TaskDone {
+				switch t.Status {
+				case domain.TaskDone:
 					check = "[x]"
-				} else if t.Status == domain.TaskBlocked {
+				case domain.TaskBlocked:
 					check = "[!]"
-				} else if t.Status == domain.TaskInProgress {
+				case domain.TaskInProgress:
 					check = "[~]"
 				}
 				badges := renderPluginBadges(m.app.Registry.EntityBadges(m.ctx, domain.EntityTask, t.ID))
