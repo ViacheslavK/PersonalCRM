@@ -1,0 +1,30 @@
+# Go build artifacts
+/pcrm
+/pcrm.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Local runtime data & SQLite databases
+*.db
+*.db-wal
+*.db-shm
+/data/
+pcrm.portable
+
+# Config / secrets
+.env
+config.local.toml
+
+# Editors & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
