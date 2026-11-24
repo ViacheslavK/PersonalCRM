@@ -196,20 +196,20 @@ func (m *Model) renderModal() string {
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString(styleTitle.Render(mod.Title) + "\n")
+	writeStrings(&b, styleTitle.Render(mod.Title), "\n")
 	if mod.Hint != "" {
-		b.WriteString(styleMuted.Render(mod.Hint) + "\n")
+		writeStrings(&b, styleMuted.Render(mod.Hint), "\n")
 	}
 	b.WriteString("\n")
 
 	switch mod.Kind {
 	case modalConfirm:
-		b.WriteString(mod.ConfirmMsg + "\n\n")
+		writeStrings(&b, mod.ConfirmMsg, "\n\n")
 		b.WriteString(styleMuted.Render("[y/Enter] Confirm   [n/Esc] Cancel"))
 
 	case modalPicker:
 		if len(mod.Options) == 0 {
-			b.WriteString(styleMuted.Render("No items available to link.") + "\n\n")
+			writeStrings(&b, styleMuted.Render("No items available to link."), "\n\n")
 			b.WriteString(styleMuted.Render("[Esc] Close"))
 		} else {
 			start := 0
@@ -229,9 +229,9 @@ func (m *Model) renderModal() string {
 					prefix = "▸ "
 					line = styleSelected.Render(line)
 				}
-				b.WriteString(prefix + line + "\n")
+				writeStrings(&b, prefix, line, "\n")
 			}
-			b.WriteString("\n" + styleMuted.Render("[↑/↓] Move   [Enter] Link   [Esc] Cancel"))
+			writeStrings(&b, "\n", styleMuted.Render("[↑/↓] Move   [Enter] Link   [Esc] Cancel"))
 		}
 
 	case modalForm:
@@ -242,8 +242,8 @@ func (m *Model) renderModal() string {
 			} else {
 				label = "  " + styleMuted.Render(label)
 			}
-			b.WriteString(label + "\n")
-			b.WriteString("  " + f.Input.View() + "\n\n")
+			writeStrings(&b, label, "\n")
+			writeStrings(&b, "  ", f.Input.View(), "\n\n")
 		}
 		b.WriteString(styleMuted.Render("[Tab/↑/↓] Next field   [Enter] Next/Submit   [Esc] Cancel"))
 	}

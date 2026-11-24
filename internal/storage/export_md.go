@@ -82,7 +82,8 @@ func (s *Store) ExportMarkdown(ctx context.Context, outDir string) error {
 			fmt.Fprintf(&b, "**Goal:** %s\n\n", p.Goal)
 		}
 		if p.Description != "" {
-			b.WriteString(p.Description + "\n\n")
+			b.WriteString(p.Description)
+			b.WriteString("\n\n")
 		}
 		if tasks := tasksByProject[p.ID]; len(tasks) > 0 {
 			b.WriteString("## Tasks\n\n")
@@ -124,7 +125,8 @@ func (s *Store) ExportMarkdown(ctx context.Context, outDir string) error {
 		b.WriteString("---\n\n")
 		fmt.Fprintf(&b, "# %s\n\n", idea.Title)
 		if idea.Description != "" {
-			b.WriteString(idea.Description + "\n\n")
+			b.WriteString(idea.Description)
+			b.WriteString("\n\n")
 		}
 		writeLinksMD(&b, linksByEntity[key])
 
@@ -151,7 +153,8 @@ func (s *Store) ExportMarkdown(ctx context.Context, outDir string) error {
 			fmt.Fprintf(&b, "**Current Focus:** %s\n\n", h.CurrentFocus)
 		}
 		if h.Description != "" {
-			b.WriteString(h.Description + "\n\n")
+			b.WriteString(h.Description)
+			b.WriteString("\n\n")
 		}
 		writeProgressLogsMD(&b, logsByEntity[key])
 		writeLinksMD(&b, linksByEntity[key])
@@ -178,7 +181,8 @@ func (s *Store) ExportMarkdown(ctx context.Context, outDir string) error {
 		b.WriteString("---\n\n")
 		fmt.Fprintf(&b, "# %s\n\n", n.Title)
 		if n.Content != "" {
-			b.WriteString(n.Content + "\n\n")
+			b.WriteString(n.Content)
+			b.WriteString("\n\n")
 		}
 		writeLinksMD(&b, linksByEntity[key])
 

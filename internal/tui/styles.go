@@ -122,6 +122,12 @@ func renderPluginBadges(badges []string) string {
 	return " " + strings.Join(styled, " ")
 }
 
+func writeStrings(b *strings.Builder, parts ...string) {
+	for _, p := range parts {
+		b.WriteString(p)
+	}
+}
+
 func truncate(s string, max int) string {
 	if max <= 3 {
 		return s

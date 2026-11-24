@@ -344,22 +344,22 @@ func (m *Model) renderRefinement() string {
 	}
 
 	var b strings.Builder
-	b.WriteString(styleTitle.Render("⚡ Weekly Refinement") + "   " + strings.Join(stepBar, " ") + "\n\n")
+	writeStrings(&b, styleTitle.Render("⚡ Weekly Refinement"), "   ", strings.Join(stepBar, " "), "\n\n")
 
 	switch rs.Step {
 	case refStepProjects:
 		if len(rs.ProjectIDs) == 0 {
 			b.WriteString(styleMuted.Render("No active/waiting projects to review. Press [Enter] or [→] to continue to Ideas."))
 		} else if p, ok := m.findProjectByID(rs.ProjectIDs[rs.ProjectPos]); ok {
-			b.WriteString(fmt.Sprintf("Project %d of %d:  %s  %s  %s\n",
-				rs.ProjectPos+1, len(rs.ProjectIDs), styleSelected.Render(p.Title), renderStatusPill(string(p.Status)), renderPriorityPill(p.Priority)))
+			fmt.Fprintf(&b, "Project %d of %d:  %s  %s  %s\n",
+				rs.ProjectPos+1, len(rs.ProjectIDs), styleSelected.Render(p.Title), renderStatusPill(string(p.Status)), renderPriorityPill(p.Priority))
 			if p.Goal != "" {
-				b.WriteString(styleMuted.Render("Goal: ") + p.Goal + "\n")
+				writeStrings(&b, styleMuted.Render("Goal: "), p.Goal, "\n")
 			}
 			tasks := m.tasksByProj[p.ID]
-			b.WriteString("\n" + styleSectionHeader.Render("Tasks:") + "\n")
+			writeStrings(&b, "\n", styleSectionHeader.Render("Tasks:"), "\n")
 			if len(tasks) == 0 {
-				b.WriteString("  " + styleMuted.Render("(no tasks — press [t] to add a next action)") + "\n")
+				writeStrings(&b, "  ", styleMuted.Render("(no tasks — press [t] to add a next action)"), "\n")
 			} else {
 				for i, t := range tasks {
 					check := "[ ]"
@@ -368,31 +368,31 @@ func (m *Model) renderRefinement() string {
 					}
 					line := fmt.Sprintf("%s %s %s", check, t.Title, renderStatusPill(string(t.Status)))
 					if i == rs.TaskCursor {
-						b.WriteString(styleSelected.Render("▸ "+line) + "\n")
+						writeStrings(&b, styleSelected.Render("▸ "+line), "\n")
 					} else {
-						b.WriteString("  " + line + "\n")
+						writeStrings(&b, "  ", line, "\n")
 					}
 				}
 			}
-			b.WriteString("\n" + styleMuted.Render("[Space] Toggle task  [t] Add task  [s] Cycle project status  [l] Log progress  [→/Enter] Next"))
+			writeStrings(&b, "\n", styleMuted.Render("[Space] Toggle task  [t] Add task  [s] Cycle project status  [l] Log progress  [→/Enter] Next"))
 		}
 
 	case refStepIdeas:
 		if len(rs.IdeaIDs) == 0 {
 			b.WriteString(styleMuted.Render("No inbox/exploring ideas to triage! Press [Enter] or [→] to review Routines."))
 		} else if it, ok := m.findIdeaByID(rs.IdeaIDs[rs.IdeaPos]); ok {
-			b.WriteString(fmt.Sprintf("Idea %d of %d:  %s  %s\n",
-				rs.IdeaPos+1, len(rs.IdeaIDs), styleSelected.Render(it.Title), renderStatusPill(string(it.Status))))
+			fmt.Fprintf(&b, "Idea %d of %d:  %s  %s\n",
+				rs.IdeaPos+1, len(rs.IdeaIDs), styleSelected.Render(it.Title), renderStatusPill(string(it.Status)))
 			if it.Description != "" {
-				b.WriteString("\n" + truncate(it.Description, w*2) + "\n")
+				writeStrings(&b, "\n", truncate(it.Description, w*2), "\n")
 			}
-			b.WriteString("\n" + styleMuted.Render("[s] Cycle status (exploring/ready/parked/discarded)   [P] Promote to Project   [→/Enter] Next"))
+			writeStrings(&b, "\n", styleMuted.Render("[s] Cycle status (exploring/ready/parked/discarded)   [P] Promote to Project   [→/Enter] Next"))
 		}
 
 	case refStepRoutines:
 		active := m.activeRoutines()
 		now := m.clock()
-		b.WriteString(styleSectionHeader.Render("Review Active Routines") + "\n\n")
+		writeStrings(&b, styleSectionHeader.Render("Review Active Routines"), "\n\n")
 		if len(active) == 0 {
 			b.WriteString(styleMuted.Render("No active routines configured. Press [→/Enter] to finish."))
 		} else {
@@ -406,29 +406,29 @@ func (m *Model) renderRefinement() string {
 				}
 				line := fmt.Sprintf("%s %-28s (%s)", mark, truncate(r.Title, 28), formatSchedule(r))
 				if i == rs.RoutineCursor {
-					b.WriteString(styleSelected.Render("▸ "+line) + "\n")
+					writeStrings(&b, styleSelected.Render("▸ "+line), "\n")
 				} else {
-					b.WriteString("  " + line + "\n")
+					writeStrings(&b, "  ", line, "\n")
 				}
 			}
-			b.WriteString("\n" + styleMuted.Render("[Space] Check off due routine   [a] Pause routine   [→/Enter] Continue to Summary"))
+			writeStrings(&b, "\n", styleMuted.Render("[Space] Check off due routine   [a] Pause routine   [→/Enter] Continue to Summary"))
 		}
 
 	case refStepPlugins:
 		sp := rs.PluginSteps[rs.PluginPos]
-		b.WriteString(fmt.Sprintf("Plugin Step (%d/%d): %s\n\n%s\n\n",
-			rs.PluginPos+1, len(rs.PluginSteps), styleSelected.Render(sp.Title), sp.Summary))
+		fmt.Fprintf(&b, "Plugin Step (%d/%d): %s\n\n%s\n\n",
+			rs.PluginPos+1, len(rs.PluginSteps), styleSelected.Render(sp.Title), sp.Summary)
 		b.WriteString(styleMuted.Render("[→/Enter] Continue"))
 
 	case refStepSummary:
-		b.WriteString(styleSectionHeader.Render("Refinement Summary") + "\n\n")
-		b.WriteString(fmt.Sprintf("  Projects reviewed: %d\n", len(rs.ProjectsReviewed)))
-		b.WriteString(fmt.Sprintf("  Ideas triaged:     %d\n", len(rs.IdeasReviewed)))
+		writeStrings(&b, styleSectionHeader.Render("Refinement Summary"), "\n\n")
+		fmt.Fprintf(&b, "  Projects reviewed: %d\n", len(rs.ProjectsReviewed))
+		fmt.Fprintf(&b, "  Ideas triaged:     %d\n", len(rs.IdeasReviewed))
 		routinesCount := 0
 		if rs.RoutinesChecked {
 			routinesCount = len(m.activeRoutines())
 		}
-		b.WriteString(fmt.Sprintf("  Routines checked:  %d\n\n", routinesCount))
+		fmt.Fprintf(&b, "  Routines checked:  %d\n\n", routinesCount)
 		b.WriteString(styleToast.Render("Press [Enter] to complete Weekly Refinement and clear the Dashboard banner."))
 	}
 

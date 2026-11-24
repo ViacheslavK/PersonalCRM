@@ -137,7 +137,7 @@ func (m *Model) renderDashboard() string {
 
 	// Left pane: Due Routines checklist.
 	var lb strings.Builder
-	lb.WriteString(styleSectionHeader.Render("Today's Due Routines") + "\n\n")
+	writeStrings(&lb, styleSectionHeader.Render("Today's Due Routines"), "\n\n")
 	if len(due) == 0 {
 		lb.WriteString(styleMuted.Render("No routines due right now. Press [5] to add routines."))
 	} else {
@@ -149,9 +149,9 @@ func (m *Model) renderDashboard() string {
 			}
 			line := fmt.Sprintf("%s %s %s", check, truncate(r.Title, leftW-16), styleMuted.Render("("+string(r.ScheduleType)+")"))
 			if i == m.dashRoutineIdx {
-				lb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+				writeStrings(&lb, styleSelected.Render("▸ "+line), "\n")
 			} else {
-				lb.WriteString("  " + line + "\n")
+				writeStrings(&lb, "  ", line, "\n")
 			}
 		}
 	}
@@ -159,7 +159,7 @@ func (m *Model) renderDashboard() string {
 
 	// Right pane: Active Projects & Next Actions.
 	var rb strings.Builder
-	rb.WriteString(styleSectionHeader.Render("Active Projects & Open Next Actions") + "\n\n")
+	writeStrings(&rb, styleSectionHeader.Render("Active Projects & Open Next Actions"), "\n\n")
 	shown := 0
 	for _, p := range m.projects {
 		if !p.IsRefinementEligible() {
@@ -170,7 +170,7 @@ func (m *Model) renderDashboard() string {
 			rb.WriteString(styleMuted.Render("... press [2] to view all projects"))
 			break
 		}
-		rb.WriteString(fmt.Sprintf("%s %s %s\n", renderPriorityPill(p.Priority), styleSelected.Render(truncate(p.Title, rightW-20)), renderStatusPill(string(p.Status))))
+		fmt.Fprintf(&rb, "%s %s %s\n", renderPriorityPill(p.Priority), styleSelected.Render(truncate(p.Title, rightW-20)), renderStatusPill(string(p.Status)))
 		openCount := 0
 		for _, t := range m.tasksByProj[p.ID] {
 			if !t.IsOpen() {
@@ -179,13 +179,13 @@ func (m *Model) renderDashboard() string {
 			openCount++
 			if openCount <= 3 {
 				badges := renderPluginBadges(m.app.Registry.EntityBadges(m.ctx, domain.EntityTask, t.ID))
-				rb.WriteString(fmt.Sprintf("   • %s%s\n", truncate(t.Title, rightW-12), badges))
+				fmt.Fprintf(&rb, "   • %s%s\n", truncate(t.Title, rightW-12), badges)
 			}
 		}
 		if openCount == 0 {
-			rb.WriteString("   " + styleMuted.Render("(no open next actions)") + "\n")
+			writeStrings(&rb, "   ", styleMuted.Render("(no open next actions)"), "\n")
 		} else if openCount > 3 {
-			rb.WriteString("   " + styleMuted.Render(fmt.Sprintf("+%d more open tasks", openCount-3)) + "\n")
+			writeStrings(&rb, "   ", styleMuted.Render(fmt.Sprintf("+%d more open tasks", openCount-3)), "\n")
 		}
 		rb.WriteString("\n")
 	}
@@ -387,16 +387,16 @@ func (m *Model) renderProjects() string {
 	list := m.filteredProjects()
 
 	var lb strings.Builder
-	lb.WriteString(styleSectionHeader.Render(fmt.Sprintf("Projects (%s)", projectFilterLabel(m.projFilter))) + "\n\n")
+	writeStrings(&lb, styleSectionHeader.Render(fmt.Sprintf("Projects (%s)", projectFilterLabel(m.projFilter))), "\n\n")
 	if len(list) == 0 {
 		lb.WriteString(styleMuted.Render("No projects in this filter.\nPress [n] to create or [f] to switch filter."))
 	} else {
 		for i, p := range list {
 			line := fmt.Sprintf("%s %s %s", renderPriorityPill(p.Priority), truncate(p.Title, leftW-18), renderStatusPill(string(p.Status)))
 			if i == m.projIdx {
-				lb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+				writeStrings(&lb, styleSelected.Render("▸ "+line), "\n")
 			} else {
-				lb.WriteString("  " + line + "\n")
+				writeStrings(&lb, "  ", line, "\n")
 			}
 		}
 	}
@@ -405,30 +405,30 @@ func (m *Model) renderProjects() string {
 	if p, ok := m.selectedProject(); !ok {
 		rb.WriteString(styleMuted.Render("Select a project to inspect tasks, logs, and links."))
 	} else {
-		rb.WriteString(fmt.Sprintf("%s  %s  %s\n", styleTitle.Render(p.Title), renderStatusPill(string(p.Status)), renderPriorityPill(p.Priority)))
+		fmt.Fprintf(&rb, "%s  %s  %s\n", styleTitle.Render(p.Title), renderStatusPill(string(p.Status)), renderPriorityPill(p.Priority))
 		if p.Goal != "" {
-			rb.WriteString(styleMuted.Render("Goal: ") + p.Goal + "\n")
+			writeStrings(&rb, styleMuted.Render("Goal: "), p.Goal, "\n")
 		}
 		if tags, _ := m.app.Store.ListTagsFor(m.ctx, domain.EntityProject, p.ID); len(tags) > 0 {
-			rb.WriteString(renderTagsLine(tags) + "\n")
+			writeStrings(&rb, renderTagsLine(tags), "\n")
 		}
 		if p.Description != "" {
-			rb.WriteString("\n" + truncate(p.Description, rightW*2) + "\n")
+			writeStrings(&rb, "\n", truncate(p.Description, rightW*2), "\n")
 		}
 
 		// Plugin detail sections (e.g. Customer / People when ext:people is enabled).
 		for _, sec := range m.app.Registry.EntityDetailSections(m.ctx, domain.EntityProject, p.ID) {
-			rb.WriteString("\n" + styleSectionHeader.Render(sec.Title) + "\n")
+			writeStrings(&rb, "\n", styleSectionHeader.Render(sec.Title), "\n")
 			for _, ln := range sec.Lines {
-				rb.WriteString("  " + ln + "\n")
+				writeStrings(&rb, "  ", ln, "\n")
 			}
 		}
 
 		// Tasks list with optional @handle plugin badges.
 		tasks := m.tasksByProj[p.ID]
-		rb.WriteString("\n" + styleSectionHeader.Render(fmt.Sprintf("Tasks (%d) — [→] focus, [t] add, [Space] done, [e] $EDITOR", len(tasks))) + "\n")
+		writeStrings(&rb, "\n", styleSectionHeader.Render(fmt.Sprintf("Tasks (%d) — [→] focus, [t] add, [Space] done, [e] $EDITOR", len(tasks))), "\n")
 		if len(tasks) == 0 {
-			rb.WriteString("  " + styleMuted.Render("(no tasks yet)") + "\n")
+			writeStrings(&rb, "  ", styleMuted.Render("(no tasks yet)"), "\n")
 		} else {
 			for i, t := range tasks {
 				check := "[ ]"
@@ -446,24 +446,24 @@ func (m *Model) renderProjects() string {
 				}
 				line := fmt.Sprintf("%s %s%s%s", check, truncate(t.Title, rightW-22), badges, dueStr)
 				if m.projFocusTasks && i == m.projTaskIdx {
-					rb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+					writeStrings(&rb, styleSelected.Render("▸ "+line), "\n")
 				} else {
-					rb.WriteString("  " + line + "\n")
+					writeStrings(&rb, "  ", line, "\n")
 				}
 			}
 		}
 
 		// Dated Progress Logs.
 		logs, _ := m.app.Store.ListProgressLogs(m.ctx, domain.EntityProject, p.ID)
-		rb.WriteString("\n" + styleSectionHeader.Render(fmt.Sprintf("Progress Log (%d) — [l] add entry", len(logs))) + "\n")
+		writeStrings(&rb, "\n", styleSectionHeader.Render(fmt.Sprintf("Progress Log (%d) — [l] add entry", len(logs))), "\n")
 		if len(logs) == 0 {
-			rb.WriteString("  " + styleMuted.Render("(no logs yet)") + "\n")
+			writeStrings(&rb, "  ", styleMuted.Render("(no logs yet)"), "\n")
 		} else {
 			for i, lg := range logs {
 				if i >= 4 {
 					break
 				}
-				rb.WriteString(fmt.Sprintf("  %s %s\n", styleMuted.Render(lg.LoggedAt.Format("2006-01-02")), truncate(lg.Content, rightW-16)))
+				fmt.Fprintf(&rb, "  %s %s\n", styleMuted.Render(lg.LoggedAt.Format("2006-01-02")), truncate(lg.Content, rightW-16))
 			}
 		}
 
@@ -576,16 +576,16 @@ func (m *Model) renderIdeas() string {
 	list := m.filteredIdeas()
 
 	var lb strings.Builder
-	lb.WriteString(styleSectionHeader.Render(fmt.Sprintf("Ideas Tracker (%s)", ideaFilterLabel(m.ideaFilter))) + "\n\n")
+	writeStrings(&lb, styleSectionHeader.Render(fmt.Sprintf("Ideas Tracker (%s)", ideaFilterLabel(m.ideaFilter))), "\n\n")
 	if len(list) == 0 {
 		lb.WriteString(styleMuted.Render("No ideas here. Press [n] to capture one or [f] to switch filter."))
 	} else {
 		for i, it := range list {
 			line := fmt.Sprintf("%s %s", truncate(it.Title, leftW-16), renderStatusPill(string(it.Status)))
 			if i == m.ideaIdx {
-				lb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+				writeStrings(&lb, styleSelected.Render("▸ "+line), "\n")
 			} else {
-				lb.WriteString("  " + line + "\n")
+				writeStrings(&lb, "  ", line, "\n")
 			}
 		}
 	}
@@ -594,27 +594,27 @@ func (m *Model) renderIdeas() string {
 	if it, ok := m.selectedIdea(); !ok {
 		rb.WriteString(styleMuted.Render("Select an idea to research, link notes/URLs, or promote [P] to a Project."))
 	} else {
-		rb.WriteString(fmt.Sprintf("%s  %s\n", styleTitle.Render(it.Title), renderStatusPill(string(it.Status))))
+		fmt.Fprintf(&rb, "%s  %s\n", styleTitle.Render(it.Title), renderStatusPill(string(it.Status)))
 		if it.Source != "" {
-			rb.WriteString(styleMuted.Render("Source: ") + it.Source + "\n")
+			writeStrings(&rb, styleMuted.Render("Source: "), it.Source, "\n")
 		}
 		if it.Excitement != nil {
-			rb.WriteString(styleMuted.Render("Excitement: ") + strings.Repeat("★", *it.Excitement) + "\n")
+			writeStrings(&rb, styleMuted.Render("Excitement: "), strings.Repeat("★", *it.Excitement), "\n")
 		}
 		if it.PromotedProjectID != "" {
-			rb.WriteString(styleToast.Render("Promoted → Project "+it.PromotedProjectID) + "\n")
+			writeStrings(&rb, styleToast.Render("Promoted → Project "+it.PromotedProjectID), "\n")
 		}
 		if tags, _ := m.app.Store.ListTagsFor(m.ctx, domain.EntityIdea, it.ID); len(tags) > 0 {
-			rb.WriteString(renderTagsLine(tags) + "\n")
+			writeStrings(&rb, renderTagsLine(tags), "\n")
 		}
 		rb.WriteString("\n")
 		if it.Description != "" {
-			rb.WriteString(it.Description + "\n")
+			writeStrings(&rb, it.Description, "\n")
 		} else {
-			rb.WriteString(styleMuted.Render("(no description yet — press [e] to write in $EDITOR)") + "\n")
+			writeStrings(&rb, styleMuted.Render("(no description yet — press [e] to write in $EDITOR)"), "\n")
 		}
 		rb.WriteString(m.renderLinkedSummary(domain.EntityIdea, it.ID, rightW))
-		rb.WriteString("\n" + styleMuted.Render("[P] Promote to Project   [c] Link Note/Resource   [g] Tag   [e] $EDITOR"))
+		writeStrings(&rb, "\n", styleMuted.Render("[P] Promote to Project   [c] Link Note/Resource   [g] Tag   [e] $EDITOR"))
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, stylePaneFocused.Width(leftW).Render(lb.String()), " ", stylePane.Width(rightW).Render(rb.String()))
@@ -691,16 +691,16 @@ func (m *Model) renderHobbies() string {
 	leftW, rightW := m.paneWidths()
 
 	var lb strings.Builder
-	lb.WriteString(styleSectionHeader.Render("Hobbies & Ongoing Interests") + "\n\n")
+	writeStrings(&lb, styleSectionHeader.Render("Hobbies & Ongoing Interests"), "\n\n")
 	if len(m.hobbies) == 0 {
 		lb.WriteString(styleMuted.Render("No hobbies tracked yet. Press [n] to add one."))
 	} else {
 		for i, h := range m.hobbies {
 			line := fmt.Sprintf("%s %s", truncate(h.Name, leftW-16), renderStatusPill(string(h.Status)))
 			if i == m.hobbyIdx {
-				lb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+				writeStrings(&lb, styleSelected.Render("▸ "+line), "\n")
 			} else {
-				lb.WriteString("  " + line + "\n")
+				writeStrings(&lb, "  ", line, "\n")
 			}
 		}
 	}
@@ -709,31 +709,31 @@ func (m *Model) renderHobbies() string {
 	if h, ok := m.selectedHobby(); !ok {
 		rb.WriteString(styleMuted.Render("Select a hobby to view reflections, progress logs, and links."))
 	} else {
-		rb.WriteString(fmt.Sprintf("%s  %s\n", styleTitle.Render(h.Name), renderStatusPill(string(h.Status))))
+		fmt.Fprintf(&rb, "%s  %s\n", styleTitle.Render(h.Name), renderStatusPill(string(h.Status)))
 		if h.CurrentFocus != "" {
-			rb.WriteString(styleMuted.Render("Current focus: ") + h.CurrentFocus + "\n")
+			writeStrings(&rb, styleMuted.Render("Current focus: "), h.CurrentFocus, "\n")
 		}
 		if tags, _ := m.app.Store.ListTagsFor(m.ctx, domain.EntityHobby, h.ID); len(tags) > 0 {
-			rb.WriteString(renderTagsLine(tags) + "\n")
+			writeStrings(&rb, renderTagsLine(tags), "\n")
 		}
 		if h.Description != "" {
-			rb.WriteString("\n" + h.Description + "\n")
+			writeStrings(&rb, "\n", h.Description, "\n")
 		}
 
 		logs, _ := m.app.Store.ListProgressLogs(m.ctx, domain.EntityHobby, h.ID)
-		rb.WriteString("\n" + styleSectionHeader.Render(fmt.Sprintf("Progress & Reflection Log (%d) — [l] add entry", len(logs))) + "\n")
+		writeStrings(&rb, "\n", styleSectionHeader.Render(fmt.Sprintf("Progress & Reflection Log (%d) — [l] add entry", len(logs))), "\n")
 		if len(logs) == 0 {
-			rb.WriteString("  " + styleMuted.Render("(no entries yet)") + "\n")
+			writeStrings(&rb, "  ", styleMuted.Render("(no entries yet)"), "\n")
 		} else {
 			for i, lg := range logs {
 				if i >= 6 {
 					break
 				}
-				rb.WriteString(fmt.Sprintf("  %s %s\n", styleMuted.Render(lg.LoggedAt.Format("2006-01-02")), truncate(lg.Content, rightW-16)))
+				fmt.Fprintf(&rb, "  %s %s\n", styleMuted.Render(lg.LoggedAt.Format("2006-01-02")), truncate(lg.Content, rightW-16))
 			}
 		}
 		rb.WriteString(m.renderLinkedSummary(domain.EntityHobby, h.ID, rightW))
-		rb.WriteString("\n" + styleMuted.Render("[l] Add Progress Log   [c] Link Note/Resource   [g] Tag   [e] $EDITOR"))
+		writeStrings(&rb, "\n", styleMuted.Render("[l] Add Progress Log   [c] Link Note/Resource   [g] Tag   [e] $EDITOR"))
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, stylePaneFocused.Width(leftW).Render(lb.String()), " ", stylePane.Width(rightW).Render(rb.String()))
@@ -801,7 +801,7 @@ func (m *Model) renderRoutines() string {
 		w = 64
 	}
 	var b strings.Builder
-	b.WriteString(styleSectionHeader.Render("Routines Checklist (Resets Automatically Each Cycle)") + "\n\n")
+	writeStrings(&b, styleSectionHeader.Render("Routines Checklist (Resets Automatically Each Cycle)"), "\n\n")
 	if len(m.routines) == 0 {
 		b.WriteString(styleMuted.Render("No routines configured yet. Press [n] to add daily/weekly/monthly/custom routines."))
 	} else {
@@ -825,9 +825,9 @@ func (m *Model) renderRoutines() string {
 			}
 			line := fmt.Sprintf("%s %-30s  %-18s%s", check, truncate(r.Title, 30), formatSchedule(r), rem)
 			if i == m.routineIdx {
-				b.WriteString(styleSelected.Render("▸ "+line) + "\n")
+				writeStrings(&b, styleSelected.Render("▸ "+line), "\n")
 			} else {
-				b.WriteString("  " + line + "\n")
+				writeStrings(&b, "  ", line, "\n")
 			}
 		}
 	}
@@ -970,62 +970,62 @@ func (m *Model) renderKnowledge() string {
 
 	var lb, rb strings.Builder
 	if m.knowledgeMode == 0 {
-		lb.WriteString(styleSectionHeader.Render("Notes (press [v] for Links/Resources)") + "\n\n")
+		writeStrings(&lb, styleSectionHeader.Render("Notes (press [v] for Links/Resources)"), "\n\n")
 		if len(m.notes) == 0 {
 			lb.WriteString(styleMuted.Render("No notes yet. Press [n] to create one."))
 		} else {
 			for i, n := range m.notes {
 				line := truncate(n.Title, leftW-6)
 				if i == m.noteIdx {
-					lb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+					writeStrings(&lb, styleSelected.Render("▸ "+line), "\n")
 				} else {
-					lb.WriteString("  " + line + "\n")
+					writeStrings(&lb, "  ", line, "\n")
 				}
 			}
 		}
 
 		if m.noteIdx < len(m.notes) {
 			n := m.notes[m.noteIdx]
-			rb.WriteString(styleTitle.Render(n.Title) + "\n")
+			writeStrings(&rb, styleTitle.Render(n.Title), "\n")
 			if tags, _ := m.app.Store.ListTagsFor(m.ctx, domain.EntityNote, n.ID); len(tags) > 0 {
-				rb.WriteString(renderTagsLine(tags) + "\n")
+				writeStrings(&rb, renderTagsLine(tags), "\n")
 			}
 			rb.WriteString("\n")
 			if n.Content != "" {
-				rb.WriteString(n.Content + "\n")
+				writeStrings(&rb, n.Content, "\n")
 			} else {
-				rb.WriteString(styleMuted.Render("(empty note — press [e] or [Enter] to edit in external $EDITOR)") + "\n")
+				writeStrings(&rb, styleMuted.Render("(empty note — press [e] or [Enter] to edit in external $EDITOR)"), "\n")
 			}
 			rb.WriteString(m.renderLinkedSummary(domain.EntityNote, n.ID, rightW))
-			rb.WriteString("\n" + styleMuted.Render("[e/Enter] Edit in $EDITOR   [c] Link to Entity   [g] Tag"))
+			writeStrings(&rb, "\n", styleMuted.Render("[e/Enter] Edit in $EDITOR   [c] Link to Entity   [g] Tag"))
 		}
 	} else {
-		lb.WriteString(styleSectionHeader.Render("Resources & Links (press [v] for Notes)") + "\n\n")
+		writeStrings(&lb, styleSectionHeader.Render("Resources & Links (press [v] for Notes)"), "\n\n")
 		if len(m.resources) == 0 {
 			lb.WriteString(styleMuted.Render("No links/resources yet. Press [n] to add one."))
 		} else {
 			for i, r := range m.resources {
 				line := fmt.Sprintf("%s %s", truncate(r.Title, leftW-18), renderStatusPill(string(r.Status)))
 				if i == m.resIdx {
-					lb.WriteString(styleSelected.Render("▸ "+line) + "\n")
+					writeStrings(&lb, styleSelected.Render("▸ "+line), "\n")
 				} else {
-					lb.WriteString("  " + line + "\n")
+					writeStrings(&lb, "  ", line, "\n")
 				}
 			}
 		}
 
 		if m.resIdx < len(m.resources) {
 			r := m.resources[m.resIdx]
-			rb.WriteString(fmt.Sprintf("%s  %s  (%s)\n", styleTitle.Render(r.Title), renderStatusPill(string(r.Status)), r.ResourceType))
-			rb.WriteString(styleTag.Render(r.URLOrPath) + "\n")
+			fmt.Fprintf(&rb, "%s  %s  (%s)\n", styleTitle.Render(r.Title), renderStatusPill(string(r.Status)), r.ResourceType)
+			writeStrings(&rb, styleTag.Render(r.URLOrPath), "\n")
 			if tags, _ := m.app.Store.ListTagsFor(m.ctx, domain.EntityResource, r.ID); len(tags) > 0 {
-				rb.WriteString(renderTagsLine(tags) + "\n")
+				writeStrings(&rb, renderTagsLine(tags), "\n")
 			}
 			if r.Notes != "" {
-				rb.WriteString("\n" + r.Notes + "\n")
+				writeStrings(&rb, "\n", r.Notes, "\n")
 			}
 			rb.WriteString(m.renderLinkedSummary(domain.EntityResource, r.ID, rightW))
-			rb.WriteString("\n" + styleMuted.Render("[s] Cycle Status   [c] Link to Entity   [g] Tag"))
+			writeStrings(&rb, "\n", styleMuted.Render("[s] Cycle Status   [c] Link to Entity   [g] Tag"))
 		}
 	}
 
@@ -1321,10 +1321,10 @@ func (m *Model) renderLinkedSummary(entType domain.EntityType, entID string, max
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString("\n" + styleSectionHeader.Render(fmt.Sprintf("Linked Items (%d)", len(links))) + "\n")
+	writeStrings(&b, "\n", styleSectionHeader.Render(fmt.Sprintf("Linked Items (%d)", len(links))), "\n")
 	for i, lk := range links {
 		if i >= 6 {
-			b.WriteString("  " + styleMuted.Render(fmt.Sprintf("+%d more links", len(links)-6)) + "\n")
+			writeStrings(&b, "  ", styleMuted.Render(fmt.Sprintf("+%d more links", len(links)-6)), "\n")
 			break
 		}
 		otherType, otherID := lk.TargetType, lk.TargetID
@@ -1332,7 +1332,7 @@ func (m *Model) renderLinkedSummary(entType domain.EntityType, entID string, max
 			otherType, otherID = lk.SourceType, lk.SourceID
 		}
 		label := m.resolveEntityLabel(otherType, otherID)
-		b.WriteString(fmt.Sprintf("  • [%s] %s %s\n", otherType, truncate(label, maxW-24), styleMuted.Render("("+lk.RelationType+")")))
+		fmt.Fprintf(&b, "  • [%s] %s %s\n", otherType, truncate(label, maxW-24), styleMuted.Render("("+lk.RelationType+")"))
 	}
 	return b.String()
 }
