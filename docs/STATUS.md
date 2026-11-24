@@ -1,14 +1,14 @@
 # PersonalCRM — Project Status & Decisions
 
-> **Current Phase:** `02 - Architecture Locked / Ready for Implementation`  
+> **Current Phase:** `03 - Extension Registry & CLI Quick Capture (Phase 2 Complete)`  
 > **Last Updated:** 2026-11-24
 
 ---
 
 ## 1. Current State
 
-- **Completed:** Discovery finalized, all high-level product & architectural questions (`Q1`–`Q8`) resolved, ADRs recorded, and technical blueprint documented in [docs/ARCHITECTURE.md](ARCHITECTURE.md).
-- **Next Step:** Begin **Phase 2 — Go Project Bootstrap, Core Domain & SQLite Storage** (once the user gives the go-ahead on the blueprint).
+- **Completed:** Phase 1 (Discovery & Architecture) and **Phase 2 (Core Engine & Storage)** are complete and verified (`go vet ./...`, `go test ./...`, and zero-CGO `pcrm.exe` build all passing).
+- **Next Step:** Begin **Phase 3 — Extension Registry, Event Bus & CLI Quick Capture** (`internal/ext`, `pcrm add`, `pcrm export`, `pcrm backup`).
 
 ---
 
@@ -42,7 +42,7 @@
 ## 4. Milestone Roadmap
 
 - [x] **Phase 1 — Discovery & Architecture:** Requirements synthesized, ADRs locked, SQLite schema & pluggable architecture designed.
-- [ ] **Phase 2 — Core Engine & Storage:** Go module bootstrap, config/portable-mode detection, domain models, recurrence & refinement math, SQLite migrations & repositories, unit tests.
+- [x] **Phase 2 — Core Engine & Storage:** Go module bootstrap, config/portable-mode detection, domain models, recurrence & refinement math, SQLite migrations & repositories, unit tests.
 - [ ] **Phase 3 — Extension Registry & CLI Quick Capture:** `internal/ext` module registry + event bus, `pcrm add`, `pcrm export`, `pcrm backup`.
 - [ ] **Phase 4 — TUI Application:** Bubble Tea views for Dashboard, Projects/Tasks, Ideas (+ Promote flow), Hobbies, Routines, Notes/Resources (+ `$EDITOR`), Progress Logs, and guided Weekly Refinement.
 - [ ] **Phase 5 — Windows Tray Daemon, Notifications & Autostart:** Windows `internal/platform` backend, background scheduler, IPC, and portable `pcrm.exe` build.
